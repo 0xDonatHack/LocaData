@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Welcome Section -->
+    <div class="relative rounded-xl overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-violet-500 opacity-90"></div>
+        <div class="relative p-8">
+            <div class="flex items-center space-x-4">
+                <img src="https://img.icons8.com/fluency/96/analytics.png" 
+                     alt="LocaData Logo" 
+                     class="h-12 w-12">
+                <div>
+                    <h1 class="text-3xl font-bold text-white mb-2">
+                        Welcome to LocaData, {{ current_user.username }}!
+                    </h1>
+                    <p class="text-purple-100">
+                        Manage and analyze your datasets from this dashboard.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="bg-white/60 dark:bg-gray-800 backdrop-blur-md rounded-xl shadow-lg p-6 
+                border border-purple-100 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-purple-900 dark:text-white mb-4">Upload New Dataset</h2>
+        <form action="{{ url_for('upload_dataset') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-purple-700 dark:text-gray-300 mb-2">
+                    Choose File
+                </label>
+                <div class="flex items-center space-x-4">
+                    <input type="file" name="file" accept=".csv,.xlsx,.xls" required
+                        class="block w-full text-sm text-purple-700 dark:text-gray-400
+                               file:mr-4 file:py-2 file:px-4 file:rounded-full
+                               file:border-0 file:text-sm file:font-semibold
+                               file:bg-purple-50 file:text-purple-700
+                               dark:file:bg-purple-900 dark:file:text-purple-200
+                               hover:file:bg-purple-100 dark:hover:file:bg-purple-800
+                               transition-all">
+                </div>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Accepted formats: CSV, Excel (.xlsx, .xls)
+                </p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-purple-700 dark:text-gray-300 mb-2">
+                    Description
+                </label>
+                <textarea name="description" rows="3"
+                    class="w-full rounded-lg border-purple-100 dark:border-gray-600
+                           bg-purple-50 dark:bg-gray-700 text-purple-700 dark:text-white
+                           focus:ring-purple-500 focus:border-purple-500 transition-all"></textarea>
+            </div>
+            <button type="submit"
+                class="inline-flex items-center px-4 py-2 rounded-full
+                       text-sm font-medium text-white gradient-primary
+                       hover:opacity-90 focus:outline-none focus:ring-2
+                       focus:ring-offset-2 focus:ring-purple-500 transition-all">
+                <i class="fas fa-upload mr-2"></i>
+                Upload Dataset
+            </button>
+        </form>
+    </div>
+
+    <!-- Datasets Section -->
+    <div class="bg-white/60 dark:bg-gray-800 backdrop-blur-md rounded-xl shadow-lg p-6 
+                border border-purple-100 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-purple-900 dark:text-white mb-6">Your Datasets</h2>
+        {% if datasets %}
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {% for dataset in datasets %}
+            <div class="bg-purple-50/50 dark:bg-gray-700/50 rounded-xl p-6 
+                        border border-purple-100 dark:border-gray-600
+                        hover:shadow-lg hover:shadow-purple-100/50 dark:hover:shadow-none
+                        transform hover:scale-102 transition-all duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-table text-purple-500 dark:text-purple-400 text-xl mr-2"></i>
+                        <h3 class="text-lg font-medium text-purple-800 dark:text-white">
+                            {{ dataset.filename }}
+                        </h3>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <a href="{{ url_for('download_dataset', dataset_id=dataset.id) }}"
+                            class="text-purple-500 hover:text-purple-600 dark:text-purple-400 
+                                   dark:hover:text-purple-300 transition-colors">
+                            <i class="fas fa-download"></i>
+                        </a>
+                        <form action="{{ url_for('delete_dataset', dataset_id=dataset.id) }}" 
+                              method="POST" class="inline">
+                            <button type="submit" 
+                                class="text-rose-400 hover:text-rose-500 dark:text-rose-400 
+                                       dark:hover:text-rose-300 transition-colors"
+                                onclick="return confirm('Are you sure you want to delete this dataset?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <p class="text-sm text-purple-600 dark:text-purple-300 mb-3">
+                    {{ dataset.description or 'No description provided' }}
+                </p>
+                <div class="text-xs text-purple-500 dark:text-purple-400 mb-4">
+                    Uploaded on {{ dataset.upload_date.strftime('%Y-%m-%d %H:%M') }}
+                </div>
+                <a href="{{ url_for('view_dataset', dataset_id=dataset.id) }}"
+                    class="inline-flex items-center px-4 py-2 rounded-full text-sm
+                           font-medium text-purple-600 bg-purple-50 hover:bg-purple-100
+                           dark:text-purple-300 dark:bg-purple-900/30 dark:hover:bg-purple-900/50
+                           focus:outline-none focus:ring-2 focus:ring-offset-2
+                           focus:ring-purple-500 transition-all">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    Analyze Dataset
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <i class="fas fa-database text-purple-300 dark:text-purple-700 text-5xl mb-4"></i>
+            <p class="text-purple-600 dark:text-gray-400">
+                No datasets uploaded yet. Start by uploading your first dataset!
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

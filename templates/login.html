@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex w-full max-w-6xl shadow-2xl rounded-2xl overflow-hidden">
+        <!-- Left Side - Image/Design -->
+        <div class="hidden lg:block lg:w-1/2 relative">
+            <img src="https://images.unsplash.com/photo-1554200876-56c2f25224fa?q=80&w=1000" 
+                 alt="Analytics Background"
+                 class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-600/90 to-violet-600/90">
+                <div class="flex flex-col justify-center h-full px-12 text-white">
+                    <h2 class="text-4xl font-bold mb-6">Welcome Back!</h2>
+                    <p class="text-lg text-purple-100 mb-8">
+                        Access your analytics dashboard and transform your data into meaningful insights.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-white/20 rounded-lg mr-4">
+                                <i class="fas fa-chart-line text-xl"></i>
+                            </div>
+                            <p class="text-purple-100">Real-time data visualization</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="p-2 bg-white/20 rounded-lg mr-4">
+                                <i class="fas fa-shield-alt text-xl"></i>
+                            </div>
+                            <p class="text-purple-100">Secure data storage</p>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="p-2 bg-white/20 rounded-lg mr-4">
+                                <i class="fas fa-magic text-xl"></i>
+                            </div>
+                            <p class="text-purple-100">Advanced analytics tools</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="w-full lg:w-1/2 bg-white dark:bg-gray-800 p-8 sm:p-12">
+            <div class="w-full max-w-md mx-auto">
+                <div class="text-center mb-8">
+                    <div class="flex justify-center mb-4">
+                        <img src="https://img.icons8.com/fluency/96/analytics.png" 
+                             alt="LocaData Logo" 
+                             class="h-16 w-16">
+                    </div>
+                    <h3 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                        Welcome to LocaData
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-300">Welcome back! Please enter your details</p>
+                </div>
+
+                <form class="space-y-6" method="POST">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Email address
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-purple-500"></i>
+                            </div>
+                            <input type="email" name="email" required
+                                class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 
+                                       dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500 
+                                       dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                placeholder="Enter your email">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-purple-500"></i>
+                            </div>
+                            <input type="password" name="password" required
+                                class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-200 
+                                       dark:border-gray-600 focus:border-purple-500 focus:ring-purple-500 
+                                       dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                placeholder="Enter your password">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="remember-me"
+                                class="h-4 w-4 text-purple-600 focus:ring-purple-500 
+                                       border-gray-300 rounded cursor-pointer">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                                Remember me
+                            </label>
+                        </div>
+                        <a href="{{ url_for('forgot_password') }}" 
+                           class="text-sm text-purple-600 hover:text-purple-500 dark:text-purple-400">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full px-4 py-3 rounded-lg text-white text-sm font-semibold
+                               bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 
+                               hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-500 
+                               focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200">
+                        Sign in
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-gray-600 dark:text-gray-400">
+                        Don't have an account?
+                        <a href="{{ url_for('register') }}" 
+                           class="text-purple-600 hover:text-purple-500 dark:text-purple-400 font-semibold ml-1">
+                            Sign up for free
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

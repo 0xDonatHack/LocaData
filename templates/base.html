@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocaData - Data Analysis Platform</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script>
+        // Add Tailwind dark mode configuration
+        tailwind.config = {
+            darkMode: 'class'
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Check for saved theme preference
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <style>
+        /* Light theme custom colors */
+        :root {
+            --light-bg: #f3f0ff;  /* Purple 50 */
+            --light-card: #f8f5ff;
+            --light-accent: #e9d5ff; /* Purple 200 */
+        }
+        
+        /* Custom gradients for light theme */
+        .gradient-primary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+        }
+        .gradient-secondary {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        }
+        .gradient-success {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+        .gradient-soft {
+            background: linear-gradient(135deg, #f3f0ff 0%, #e9d5ff 100%);
+        }
+        
+        /* Dark theme gradients */
+        .dark .gradient-primary {
+            background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+        }
+        .dark .gradient-secondary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+        .dark .gradient-success {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        .dark .gradient-soft {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* Card styles */
+        .card-soft {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1),
+                       0 2px 4px -1px rgba(139, 92, 246, 0.06);
+        }
+        
+        .dark .card-soft {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Smooth transitions */
+        .theme-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-bg);
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9333ea;
+        }
+
+        /* Logo animation */
+        .logo-hover {
+            transition: transform 0.3s ease;
+        }
+        .logo-hover:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-purple-50 dark:bg-gray-900 theme-transition">
+    <!-- Navigation -->
+    <nav class="gradient-primary shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ url_for('home') }}" 
+                           class="flex items-center space-x-3 logo-hover">
+                            <img src="https://img.icons8.com/fluency/96/analytics.png" 
+                                 alt="LocaData Logo" 
+                                 class="h-9 w-9">
+                            <span class="text-2xl font-bold text-white">
+                                LocaData
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleTheme()" 
+                            class="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+                        <i class="fas fa-moon dark:hidden text-white"></i>
+                        <i class="fas fa-sun hidden dark:block text-yellow-300"></i>
+                    </button>
+                    
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" 
+                           class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                            Dashboard
+                        </a>
+                        {% if current_user.is_admin %}
+                            <a href="/admin" 
+                               class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                                Admin Panel
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}" 
+                           class="ml-4 px-4 py-2 rounded-md text-sm font-medium bg-red-500 hover:bg-red-600 transition-colors">
+                            Logout
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" 
+                           class="px-4 py-2 rounded-md text-sm font-medium bg-white text-blue-600 hover:bg-blue-50 transition-colors">
+                            Login
+                        </a>
+                        <a href="{{ url_for('register') }}" 
+                           class="ml-4 px-4 py-2 rounded-md text-sm font-medium bg-white/10 hover:bg-white/20 transition-colors">
+                            Register
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages with improved styling -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 mt-4">
+                {% for category, message in messages %}
+                    <div class="rounded-lg p-4 mb-4 shadow-md transition-all duration-300 
+                        {% if category == 'success' %}
+                            bg-emerald-50 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200
+                        {% elif category == 'danger' %}
+                            bg-rose-50 text-rose-700 dark:bg-rose-900/50 dark:text-rose-200
+                        {% else %}
+                            bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200
+                        {% endif %}">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                {% if category == 'success' %}
+                                    <i class="fas fa-check-circle text-emerald-400 dark:text-emerald-300"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="fas fa-exclamation-circle text-rose-400 dark:text-rose-300"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle text-blue-400 dark:text-blue-300"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="gradient-secondary text-white mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4">
+            <p class="text-center text-white/80">© 2024 DataAnalytics. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html> 

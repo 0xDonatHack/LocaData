@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Dataset Info -->
+    <div class="gradient-primary rounded-xl shadow-lg p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white mb-2">{{ dataset.filename }}</h1>
+                <p class="text-blue-100">{{ dataset.description or 'No description provided' }}</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('download_dataset', dataset_id=dataset.id) }}"
+                    class="inline-flex items-center px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 
+                           text-white transition-all">
+                    <i class="fas fa-download mr-2"></i>
+                    Download
+                </a>
+                <form action="{{ url_for('delete_dataset', dataset_id=dataset.id) }}" method="POST" class="inline">
+                    <button type="submit"
+                        class="inline-flex items-center px-4 py-2 rounded-lg bg-red-500/80 hover:bg-red-500 
+                               text-white transition-all"
+                        onclick="return confirm('Are you sure you want to delete this dataset?')">
+                        <i class="fas fa-trash mr-2"></i>
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        {% set stats_items = [
+            ('rows', 'Total Rows', 'fa-table'),
+            ('columns', 'Total Columns', 'fa-columns'),
+            ('missing_values', 'Missing Values', 'fa-exclamation-triangle'),
+            ('numeric_columns', 'Numeric Columns', 'fa-hashtag'),
+            ('categorical_columns', 'Categorical Columns', 'fa-list')
+        ] %}
+        {% for key, label, icon in stats_items %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 
+                    border border-purple-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ label }}</h3>
+                <i class="fas {{ icon }} text-purple-500 dark:text-purple-400 text-xl"></i>
+            </div>
+            <p class="text-3xl font-semibold text-purple-600 dark:text-purple-400">
+                {{ stats[key] }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Visualizations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% for plot in plots %}
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 
+                    border border-purple-100 dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                {{ plot.title }}
+            </h3>
+            <div class="w-full h-[400px]" id="{{ plot.id }}"></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Theme-aware Plotly initialization -->
+<script>
+    // Function to update plot themes
+    function updatePlotThemes() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#fff' : '#1f2937';
+        const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+        
+        {% for plot in plots %}
+        const plotData{{ loop.index }} = {{ plot.json | safe }};
+        
+        // Update theme-specific properties
+        plotData{{ loop.index }}.layout.font.color = textColor;
+        plotData{{ loop.index }}.layout.title.font.color = textColor;
+        plotData{{ loop.index }}.layout.xaxis = {
+            ...plotData{{ loop.index }}.layout.xaxis,
+            gridcolor: gridColor,
+            linecolor: gridColor,
+            tickcolor: textColor,
+            tickfont: { color: textColor },
+            fixedrange: true  // Disable zoom on x-axis
+        };
+        plotData{{ loop.index }}.layout.yaxis = {
+            ...plotData{{ loop.index }}.layout.yaxis,
+            gridcolor: gridColor,
+            linecolor: gridColor,
+            tickcolor: textColor,
+            tickfont: { color: textColor },
+            fixedrange: true  // Disable zoom on y-axis
+        };
+        
+        Plotly.newPlot('{{ plot.id }}', 
+            plotData{{ loop.index }}.data, 
+            plotData{{ loop.index }}.layout,
+            {
+                responsive: true,
+                displayModeBar: false,  // Hide the mode bar completely
+                staticPlot: false,      // Keep hover effects
+                showTips: false         // Hide tips
+            }
+        );
+        {% endfor %}
+    }
+
+    // Initial plot creation
+    updatePlotThemes();
+
+    // Update plots when theme changes
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                updatePlotThemes();
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+
+    // Update plots on window resize
+    window.addEventListener('resize', () => {
+        {% for plot in plots %}
+        Plotly.Plots.resize('{{ plot.id }}');
+        {% endfor %}
+    });
+</script>
+{% endblock %} 
