@@ -51,11 +51,6 @@ python app.py
 
 The application will be available at `http://localhost:5000`
 
-## Default Admin Account
-
-- Email: admin@example.com
-- Password: admin123
-
 ## Supported File Types
 
 - CSV (.csv)
